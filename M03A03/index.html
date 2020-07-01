@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html ng-app="minhaApp">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div ng-controller="MeuCtrl">
+      <h1>{{ title }}</h1>
+    </div>
+
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script>
+      // Criando uum módulo]
+      angular.module('minhaApp', ['ngRoute', 'minhaApp.Controllers']);
+      angular.module('minhaApp.Controllers', []);
+      angular.module('minhaApp.Admin', []);
+
+      // Obtendo um módulo
+      var modulo = angular.module('minhaApp.Controllers');
+      modulo.controller('MeuCtrl', function ($scope) {
+        $scope.title = "Olá do minhaApp";
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app" ng-controller="MainController">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contacts Manager</title>
+    <link
+      rel="stylesheet"
+      href="../bower_components/bootswatch/dist/sandstone/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="/bower_components/toastr/toastr.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
+      integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div ng-include="'header.html'"></div>
+    <div class="container">
+      <div class="col-md-8">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="text-center">First Name</th>
+              <th class="text-center">Last Name</th>
+              <th class="text-center">Birthday</th>
+              <th class="text-center"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="c in contacts">
+              <td>{{ c.fisrtName }}</td>
+              <td>{{ c.lastName }}</td>
+              <td class="text-center">{{ c.birthday | date: 'dd/MM/yyyy' }}</td>
+              <td class="text-center">
+                <div class="btn-group">
+                  <button class="btn btn-info btn-sm" ng-click="editContact(c)">
+                    EDIT
+                  </button>
+                  <button
+                    class="btn btn-danger btn-sm"
+                    ng-click="deleteContact(c)"
+                  >
+                    DELETE
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-4">
+        <br />
+        <form>
+          <div class="form-group">
+            <label for="id">Unique Identifier</label>
+            <input
+              type="text"
+              class="form-control"
+              id="id"
+              ng-model="contact.id"
+              readonly
+            />
+          </div>
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="firstName"
+              ng-model="contact.firstName"
+            />
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="lastName"
+              ng-model="contact.lastName"
+            />
+          </div>
+          <div class="form-group">
+            <label for="birthday">Birthday</label>
+            <input
+              type="date"
+              class="form-control"
+              id="birthday"
+              ng-model="contact.birthday"
+            />
+          </div>
+          <div class="form-group">
+            <label for="id">Company</label>
+            <select
+              name="company"
+              id="company"
+              ng-model="contact.company"
+              class="form-control"
+            >
+              <option value="{{ company.id }}" ng-repeat="company in companies"
+                >{{ company.name }}</option
+              >
+            </select>
+          </div>
+          <button
+            type="button"
+            class="btn btn-default"
+            ng-click="saveContact()"
+          >
+            Salvar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+      integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+      integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../bower_components/toastr/toastr.min.js"></script>
+    <script src="../bower_components/angular/angular.min.js"></script>
+    <script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+
+    <script>
+      angular.module("app", []);
+      var app = angular.module("app");
+
+      app.controller("MainController", function (
+        $scope,
+        $http,
+        ContactRepository,
+        CompanyRepository
+      ) {
+        $scope.contact = {
+          id: "",
+          lastName: "",
+          birthday: new Date(),
+          firstName: "",
+          company: "",
+        };
+        $scope.contacts = [];
+        $scope.companies = [];
+
+        var username = "danilo-ferrari";
+        var passsword = "12345678";
+        var baseUrl = "https://abt5500.apispark.net/v1/";
+        $http.defaults.headers.common["Authorization"] =
+          "Basic" + btoa(username + ":" + passsword);
+
+        $scope.saveContact = function () {
+          if ($scope.contact.id == "") {
+            postContact();
+          } else {
+            putContact();
+          }
+        };
+
+        $scope.editContact = function (c) {
+          $scope.contact = {
+            id: c.id,
+            lastName: c.lastName,
+            birthday: new Date(c.birthday),
+            firstName: c.firstName,
+            company: c.company,
+          };
+        };
+
+        $scope.deleteContact = function (c) {
+          $scope.contact = {
+            id: c.id,
+            lastName: c.lastName,
+            birthday: new Date(c.birthday),
+            firstName: c.firstName,
+            company: c.company,
+          };
+          deleteContact();
+        };
+
+        getContacts();
+        getCompanies();
+
+        function getContacts() {
+          ContactRepository.query(function (entries) {
+            $scope.contacts = entries;
+          });
+        }
+
+        function getCompanies() {
+          ContactRepository.query(function (entries) {
+            $scope.companies = entries;
+          });
+        }
+
+        function postContact() {
+          ContactRepository.save($scope.contact, function (data) {
+            $scope.contacts.push(data);
+          });
+        }
+
+        function putContact() {
+          var contact = ContactRepository.get({ id: $scope.contact.id });
+          contact.lastName = $scope.contact.lastName;
+          contact.birthday = new Date($scope.contact.birthday);
+          contact.firstName = $scope.contact.firstName;
+          contact.company = $scope.contact.company;
+
+          contact.$save(function (data) {
+            var index = $scope.contacts.indexOf($scope.contact);
+            $scope.contacts.splice(index, 1);
+            $scope.contacts.push(data);
+          });
+        }
+
+        function deleteContact() {
+          ContactRepository.delete({ id: $scope.contact.id }, function () {
+            var index = $scope.contacts.indexOf($scope.contact);
+            $scope.contacts.splice(index, 1);
+            newContact();
+            toastr.success("Contact deleted successfully", "Success!");
+          });
+        }
+
+        function newContact() {
+          $scope.contact = {
+            id: "",
+            lastName: "",
+            birthday: new Date(),
+            firstName: "",
+            company: "",
+          };
+        }
+      });
+
+      app.factory("ContactRepository", function ($resource) {
+        return $resource(
+          "https://abt5500.apispark.net/v1/contacts/:id",
+          { id: "@id" },
+          {
+            update: { method: "put" },
+            create: { method: "post" },
+          }
+        );
+      });
+
+      app.factory("CompanyRepository", function ($resource) {
+        return $resource("https://abt5500.apispark.net/v1/companies/:id");
+      });
+    </script>
+  </body>
+</html>

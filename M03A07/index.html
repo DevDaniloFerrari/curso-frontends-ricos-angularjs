@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- CSS only -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div ng-controller="HomeController" class="container">
+      <h3>Sua lista tem {{ products.length }} itens</h3>
+      <input type="text" ng-model="filtro" />
+      <select ng-model="ordem">
+        <option value="title">Título</option>
+        <option value="category">Categoria</option>
+      </select>
+
+      <ul>
+        <li
+          ng-repeat="product in products | filter: { 'title': filtro} | orderBy: ordem"
+        >
+          {{ product.title }} - {{ product.category }}
+          <button ng-click="removeProduct(product)">Excluir</button>
+        </li>
+      </ul>
+      <hr />
+      <label>Produto:</label><br />
+      <input type="text" ng-model="product.title" />
+      <br />
+      <label>Categoria:</label><br />
+      <input type="text" ng-model="product.category" /><br>
+      <button ng-click="addProduct()">Adicionar</button>
+    </div>
+
+    <script src="../bower_components/angular/angular.min.js"></script>
+    <script>
+      angular.module("app", []);
+      var app = angular.module("app");
+
+      app.controller("HomeController", function ($scope) {
+        $scope.product = {
+          title: "",
+          category: "",
+        };
+        $scope.products = [
+          { title: "Mouse", category: "Informática" },
+          { title: "Teclado", category: "Informática" },
+          { title: "Monitor", category: "Informática" },
+          { title: "Mouse Pad", category: "Informática" },
+          { title: "Mouse Sem Fio", category: "Informática" },
+          { title: "Smartphone", category: "Telefonia" },
+          { title: "Mesa", category: "Escritório" },
+          { title: "Cadeira", category: "Escritório" },
+        ];
+
+        $scope.addProduct = function () {
+          AddProduct();
+        };
+
+        $scope.removeProduct = function(product) {
+          RemoveProduct(product);
+        }
+
+        function AddProduct() {
+          $scope.products.push($scope.product);
+        };
+
+        function RemoveProduct(product) {
+          var index = $scope.products.indexOf(product);
+          $scope.products.splice(index,1);
+          alert('Item ' + product.title + ' excluído com sucesso!');
+        };
+
+        console.log($scope.products);
+      });
+    </script>
+  </body>
+</html>
